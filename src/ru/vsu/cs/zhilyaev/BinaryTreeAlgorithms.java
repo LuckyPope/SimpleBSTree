@@ -226,21 +226,51 @@ public class BinaryTreeAlgorithms {
      * @param treeNode Узел поддерева, которое требуется "обойти"
      * @param visitor Посетитель
      */
-    public static <T> void byLevelVisit(BinaryTree.TreeNode<T> treeNode, Visitor<T> visitor) {
+    /*public static <T> void byLevelVisit(BinaryTree.TreeNode<T> treeNode, Visitor<T> visitor) {
         Queue<QueueItem<T>> queue = new LinkedList<>();
+        Queue<QueueItem<T>> queueIn = new LinkedList<>();
         queue.add(new QueueItem<>(treeNode, 0));
 
         while (!queue.isEmpty()) {
-            QueueItem<T> item = queue.poll();
-            if (item.node.getLeft() != null) {
-                queue.add(new QueueItem<>(item.node.getLeft(), item.level + 1));
+            while (!queue.isEmpty()) {
+                QueueItem<T> item = queue.poll();
+                if (item.node.getLeft() != null) {
+                    queueIn.add(new QueueItem<>(item.node.getLeft(), item.level + 1));
+                }
+                if (item.node.getRight() != null) {
+                    queueIn.add(new QueueItem<>(item.node.getRight(), item.level + 1));
+                }
             }
-            if (item.node.getRight() != null) {
-                queue.add(new QueueItem<>(item.node.getRight(), item.level + 1));
-            }
-            visitor.visit(item.node.getValue(), item.level);
+            queue = queueIn;
         }
     }
+
+     */
+
+
+
+    public static <T> void byLevelVisit(BinaryTree.TreeNode<T> treeNode, Visitor<T> visitor) {
+        Queue<QueueItem<T>> queue = new LinkedList<>();
+        Queue<QueueItem<T>> queueIn = new LinkedList<>();
+        queue.add(new QueueItem<>(treeNode, 0));
+        queueIn.add(new QueueItem<>(treeNode, 0));
+
+        while (!queue.isEmpty()) {
+            while (!queue.isEmpty()) {
+                QueueItem<T> item = queue.poll();
+                if (item.node.getLeft() != null) {
+                    queueIn.add(new QueueItem<>(item.node.getLeft(), item.level + 1));
+                }
+                if (item.node.getRight() != null) {
+                    queueIn.add(new QueueItem<>(item.node.getRight(), item.level + 1));
+                }
+                visitor.visit(item.node.getValue(), item.level);
+            }
+            queue = queueIn;
+        }
+    }
+
+
 
     public static <T> void upValue(BinaryTree.TreeNode<T> treeNode, Visitor<T> visitor) {
         Queue<QueueItem<T>> queue = new LinkedList<>();
@@ -258,42 +288,41 @@ public class BinaryTreeAlgorithms {
     }
 
     public static <T> ArrayList<Integer> findMaxLevel(BinaryTree.TreeNode<T> treeNode) {
-        int maxCount = 1;
-        int count = 0;
-        int level = 0;
-        ArrayList<Integer> listOfMaxLevel = new ArrayList<>();
-        Map map = new HashMap();
-        map.put(0,1);
-
-        Queue<QueueItem<T>> queue = new LinkedList<>();
-        queue.add(new QueueItem<>(treeNode, 0));
-        while (!queue.isEmpty()) {
-            QueueItem<T> item = queue.poll();
-
-            if(item.level > level) {
-                map.put(level + 1, count);
-                count = 0;
-                level = item.level;
-            }
-
-            if (item.node.getLeft() != null) {
-                queue.add(new QueueItem<>(item.node.getLeft(), item.level + 1));
-                count++;
-            }
-            if (item.node.getRight() != null) {
-                queue.add(new QueueItem<>(item.node.getRight(), item.level + 1));
-                count++;
-            }
-
-            if(count > maxCount || count == maxCount) {
-                maxCount = count;
-            }
+        if(treeNode == null) {
+            return new ArrayList<>();
         }
 
-        for(int i = 0; i < map.size(); i++) {
-            if(map.get(i).equals(maxCount)) {
-                listOfMaxLevel.add(i);
+        int maxCount = 1;
+        int level = 0;
+        ArrayList<Integer> listOfMaxLevel = new ArrayList<>();
+        listOfMaxLevel.add(0);
+
+        Queue<BinaryTree.TreeNode<T>> queue = new LinkedList<>();
+        Queue<BinaryTree.TreeNode<T>> queueIn = new LinkedList<>();
+        queue.add(treeNode);
+
+        while (!queue.isEmpty()) {
+            while (!queue.isEmpty()) {
+                BinaryTree.TreeNode<T> item = queue.poll();
+                if (item.getLeft() != null) {
+                    queueIn.add(item.getLeft());
+                }
+                if (item.getRight() != null) {
+                    queueIn.add(item.getRight());
+                }
             }
+            queue = queueIn;
+
+            if(queueIn.size() == maxCount) {
+                listOfMaxLevel.add(level + 1);
+            } else if(queueIn.size() > maxCount) {
+                listOfMaxLevel.clear();
+                listOfMaxLevel.add(level + 1);
+                maxCount = queueIn.size();
+            }
+
+            queueIn = new LinkedList<>();
+            level++;
         }
 
         return listOfMaxLevel;
